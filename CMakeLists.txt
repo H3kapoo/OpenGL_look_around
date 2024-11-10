@@ -29,11 +29,14 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     add_executable(${PROJECT_NAME}
         src/main.cpp
         src/Window.cpp
-        src/shader/Shader.cpp
-        src/mesh/Mesh.cpp
-        src/tools/Logger.cpp
-        src/tools/Debug.cpp
         src/assetLoaders/TextureLoader.cpp
+        src/mesh/Mesh.cpp
+        src/mesh/MeshFactory.cpp
+        src/renderer/Renderer.cpp
+        src/objects/GameObject.cpp
+        src/shader/Shader.cpp
+        src/tools/Debug.cpp
+        src/tools/Logger.cpp
         )
 
     target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)

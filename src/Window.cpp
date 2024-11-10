@@ -4,6 +4,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include "src/common/WindowCommon.hpp"
+
 namespace gui
 {
 using namespace tools;
@@ -45,6 +47,11 @@ Window::~Window()
     glfwDestroyWindow(windowHandle_);
 }
 
+void Window::setTitle(const std::string& title)
+{
+    glfwSetWindowTitle(windowHandle_, title.c_str());
+}
+
 void Window::setEventBits(const uint16_t setEventBits)
 {
     enabledEventBits_ |= setEventBits;
@@ -61,7 +68,7 @@ void Window::setupEventCallbacks()
 
     glfwSetCursorPosCallback(windowHandle_, [](GLFWwindow* win, double xPos, double yPos){
         Window* w =  static_cast<Window*>(glfwGetWindowUserPointer(win));
-        if (w->mouseMoveCb_ && (w->enabledEventBits_ & EventBit::MOUSE_MOVE))
+        if (w->mouseMoveCb_ && (w->enabledEventBits_ & common::WindowInputBit::MOUSE_MOVE))
         {
             w->mouseMoveCb_(xPos, yPos);
         };
@@ -77,7 +84,7 @@ void Window::setupEventCallbacks()
         }
 
         Window* w =  static_cast<Window*>(glfwGetWindowUserPointer(win));
-        if (w->mouseClickCb_ && (w->enabledEventBits_ & EventBit::MOUSE_CLICK))
+        if (w->mouseClickCb_ && (w->enabledEventBits_ & common::WindowInputBit::MOUSE_CLICK))
         {
             w->mouseClickCb_();
         };
@@ -144,12 +151,12 @@ void Window::pollEvents()
     glfwPollEvents();
 }
 
-void Window::clear(const uint32_t bits)
+double Window::getTime()
 {
-    glClear(bits);
+    return glfwGetTime();
 }
 
-double Window::getTime()
+double Window::getFPS()
 {
     return glfwGetTime();
 }

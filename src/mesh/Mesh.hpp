@@ -5,12 +5,15 @@
 
 #include <GL/glew.h>
 
+#include "src/common/Transform.hpp"
 #include "src/tools/Logger.hpp"
 
 namespace gui
 {
 namespace mesh
 {
+using namespace common;
+
 class Mesh
 {
 public:

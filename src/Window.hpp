@@ -10,12 +10,6 @@
 
 namespace gui
 {
-enum EventBit : uint16_t
-{
-    MOUSE_CLICK = 1 << 0,
-    MOUSE_MOVE   = 1 << 1,
-    // Left-most bit (15) used to determine set/unset behavior
-};
 
 using MouseMoveCallback = std::function<void(double, double)>;
 using MouseClickCallback = std::function<void()>;
@@ -49,6 +43,7 @@ public:
         const HintFactory& hints = HintFactory::createDefault());
     ~Window();
 
+    void setTitle(const std::string& title);
     void enableVSync() const;
     void disableVSync() const;
     void setContextCurrent() const;
@@ -67,8 +62,8 @@ public:
     static bool initGlfwWindowing();
     static void terminate();
     static void pollEvents();
-    static void clear(const uint32_t bits);
     static double getTime();
+    static double getFPS();
 
 private:
     void setupEventCallbacks();

@@ -1,9 +1,9 @@
 #include "Shader.hpp"
-#include "src/common/Texture.hpp"
 
 #include <fstream>
-#include <glm/gtc/type_ptr.hpp>
 #include <sstream>
+
+#include <glm/gtc/type_ptr.hpp>
 
 namespace gui
 {
@@ -14,31 +14,31 @@ Shader::Shader(const std::string& shaderPath)
     , shaderId_(load(shaderPath))
 {}
 
-void Shader::setTexture1D(const std::string& name, const TextureUnit texUnit, const uint32_t texId) const
+void Shader::setTexture1D(const std::string& name, const TextureUnitId texUnit, const uint32_t texId) const
 {
-    setTexture(name, texUnit, texId, TextureType::_1D);
+    setTexture(name, texUnit, texId, GL_TEXTURE_1D);
 }
 
-void Shader::setTexture2D(const std::string& name, const TextureUnit texUnit, const uint32_t texId) const
+void Shader::setTexture2D(const std::string& name, const TextureUnitId texUnit, const uint32_t texId) const
 {
-    setTexture(name, texUnit, texId, TextureType::_2D);
+    setTexture(name, texUnit, texId, GL_TEXTURE_2D);
 }
 
-void Shader::setTexture3D(const std::string& name, const TextureUnit texUnit, const uint32_t texId) const
+void Shader::setTexture3D(const std::string& name, const TextureUnitId texUnit, const uint32_t texId) const
 {
-    setTexture(name, texUnit, texId, TextureType::_3D);
+    setTexture(name, texUnit, texId, GL_TEXTURE_3D);
 }
 
-void Shader::setTexture1DArray(const std::string& name, const TextureUnit texUnit,
+void Shader::setTexture1DArray(const std::string& name, const TextureUnitId texUnit,
     const uint32_t texId) const
 {
-    setTexture(name, texUnit, texId, TextureType::_1DArray);
+    setTexture(name, texUnit, texId, GL_TEXTURE_1D_ARRAY);
 }
 
-void Shader::setTexture2DArray(const std::string& name, const TextureUnit texUnit,
+void Shader::setTexture2DArray(const std::string& name, const TextureUnitId texUnit,
     const uint32_t texId) const
 {
-    setTexture(name, texUnit, texId, TextureType::_2DArray);
+    setTexture(name, texUnit, texId, GL_TEXTURE_2D_ARRAY);
 }
 
 void Shader::setInt(const std::string& name, const int32_t value) const
@@ -82,44 +82,23 @@ void Shader::setMat4f(const std::string& name, const glm::mat4& value) const
     glUniformMatrix4fv(loc, 1, transposeMatrix, glm::value_ptr(value));
 }
 
-void Shader::setTexture(const std::string& name, const TextureUnit texUnit, const uint32_t texId,
-    const TextureType type) const
+void Shader::setTexture(const std::string& name, const TextureUnitId texUnit, const uint32_t texId,
+    const TextureTargetType type) const
 {
-    int32_t maxTextureUnits;
-    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
-    if (texUnit+1 > maxTextureUnits)
+    int32_t maxTextureUnitIds;
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnitIds);
+    if (texUnit + 1 > GL_TEXTURE0 + (uint32_t)maxTextureUnitIds)
     {
         log_.error("GPU not able to support more than %d texture units. Tried to use unit %d",
-            maxTextureUnits, texUnit);
+            maxTextureUnitIds, (int32_t)texUnit - (int32_t)GL_TEXTURE0);
         return;
     }
 
     // Shader needs texture unit location in range from [0..maxUnits], not from [GL_TEXTURE0..maxGL_TEXTURE]
-    setInt(name, (GL_TEXTURE0+texUnit) - GL_TEXTURE0);
-    glActiveTexture(GL_TEXTURE0 + texUnit);
+    setInt(name, texUnit - GL_TEXTURE0);
+    glActiveTexture(texUnit);
 
-    uint32_t glTarget{0};
-    switch (type)
-    {
-        case common::TextureType::_1D:
-            glTarget = GL_TEXTURE_1D;
-            break;
-        case common::TextureType::_2D:
-            glTarget = GL_TEXTURE_2D;
-            break;
-        case common::TextureType::_3D:
-            glTarget = GL_TEXTURE_3D;
-            break;
-        case common::TextureType::_1DArray:
-            glTarget = GL_TEXTURE_1D_ARRAY;
-            break;
-        case common::TextureType::_2DArray:
-            glTarget = GL_TEXTURE_2D_ARRAY;
-            break;
-        default:
-            glTarget = GL_TEXTURE_2D;
-    }
-    glBindTexture(glTarget, texId);
+    glBindTexture(type, texId);
 }
 
 inline void Shader::handleNotFoundLocation(const std::string& name) const
@@ -204,7 +183,7 @@ uint32_t Shader::linkShaders(int vertShaderId, int fragShaderId)
     return shaderId;
 }
 
-uint32_t Shader::compileShaderData(const std::string& data, int32_t shaderType)
+uint32_t Shader::compileShaderData(const std::string& data, const ShaderPartType shaderType)
 {
     const char* src = data.c_str();
     uint32_t shaderPart = glCreateShader(shaderType);

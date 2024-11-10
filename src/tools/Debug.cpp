@@ -28,27 +28,31 @@ Debug::Debug()
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     glDebugMessageCallback(Debug::debugCallback, &this->log_);
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-    log_.info("Context for debug messages enabled");
+    log_.debug("Context for debug messages enabled");
 
-    int32_t majorVersion = 0, minorVersion = 0;
+    int32_t majorVersion{0}, minorVersion{0};
     glGetIntegerv(GL_MAJOR_VERSION, &majorVersion);
     glGetIntegerv(GL_MINOR_VERSION, &minorVersion);
-    log_.info("OpenGL version: %d.%d | %s", majorVersion, minorVersion, glGetString(GL_VERSION));
+    log_.debug("OpenGL version: %d.%d | %s", majorVersion, minorVersion, glGetString(GL_VERSION));
 
-    int32_t maxTextureUnits;
+    int32_t maxTextureUnits{0};
     glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
-    log_.info("Max texture units: %d", maxTextureUnits);
+    log_.debug("Max texture units: %d", maxTextureUnits);
+
+    float maxAnisotropicFiltering{0.0f};
+    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &maxAnisotropicFiltering);
+    log_.debug("Max AA supported: %f", maxAnisotropicFiltering);
 }
 
 void Debug::enableWireframe()
 {
-    log_.info("Enabled wireframe mode");
+    log_.debug("Enabled wireframe mode");
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
 void Debug::disableWireframe()
 {
-    log_.info("Disabled wireframe mode");
+    log_.debug("Disabled wireframe mode");
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
